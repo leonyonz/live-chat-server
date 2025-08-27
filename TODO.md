@@ -70,3 +70,6 @@
 - [x] Create Docker configuration for production
 - [x] Implement error handling and logging
 - [x] Performance testing
+
+## Known Issues
+- [ ] Cross-device message synchronization - Messages sent from one device are not visible on other devices

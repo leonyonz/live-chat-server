@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated server-side room membership logic to properly add users when joining rooms
 - Modified frontend widget to pass userId when joining rooms
 
+### Known Issues
+- Cross-device message synchronization - Messages sent from one device are not visible on other devices
+
 ## [1.0.0] - 2025-08-27
 
 ### Added
