@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat Widget</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Chat Bubble Button -->
+    <div id="chat-bubble" class="chat-bubble">
+        <span class="bubble-icon">💬</span>
+    </div>
+
+    <!-- Chat Container -->
+    <div id="chat-container" class="chat-container hidden">
+        <div class="chat-header">
+            <h3>Live Chat</h3>
+            <button id="close-chat" class="close-btn">&times;</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will be displayed here -->
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="message-input" placeholder="Type a message...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Join Chat</h2>
+            <input type="text" id="username-input" placeholder="Enter your username">
+            <button id="guest-login">Join as Guest</button>
+            <div class="social-login">
+                <button id="google-login" class="social-btn google">Login with Google</button>
+                <button id="facebook-login" class="social-btn facebook">Login with Facebook</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="widget.js"></script>
+</body>
+</html>

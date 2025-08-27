@@ -1,0 +1,264 @@
+// Socket.IO connection
+const socket = io();
+
+// DOM Elements
+const chatBubble = document.getElementById('chat-bubble');
+const chatContainer = document.getElementById('chat-container');
+const closeChat = document.getElementById('close-chat');
+const chatMessages = document.getElementById('chat-messages');
+const messageInput = document.getElementById('message-input');
+const gifButton = document.getElementById('gif-button');
+const sendButton = document.getElementById('send-button');
+const loginModal = document.getElementById('login-modal');
+const usernameInput = document.getElementById('username-input');
+const guestLogin = document.getElementById('guest-login');
+const googleLogin = document.getElementById('google-login');
+const facebookLogin = document.getElementById('facebook-login');
+const gifPicker = document.getElementById('gif-picker');
+const gifSearchInput = document.getElementById('gif-search-input');
+const gifResults = document.getElementById('gif-results');
+
+// User state
+let currentUser = null;
+let currentRoom = 'general';
+
+// Event Listeners
+chatBubble.addEventListener('click', () => {
+  if (currentUser) {
+    chatContainer.classList.remove('hidden');
+  } else {
+    loginModal.classList.remove('hidden');
+  }
+});
+
+closeChat.addEventListener('click', () => {
+  chatContainer.classList.add('hidden');
+});
+
+sendButton.addEventListener('click', sendMessage);
+messageInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    sendMessage();
+  }
+});
+
+guestLogin.addEventListener('click', () => {
+  const username = usernameInput.value.trim();
+  if (username) {
+    loginAsGuest(username);
+  }
+});
+
+googleLogin.addEventListener('click', () => {
+  // Redirect to Google OAuth
+  window.location.href = '/api/auth/google';
+});
+
+facebookLogin.addEventListener('click', () => {
+  // Redirect to Facebook OAuth
+  window.location.href = '/api/auth/facebook';
+});
+
+// GIF Picker Event Listeners
+gifButton.addEventListener('click', () => {
+  gifPicker.classList.toggle('show');
+  if (gifPicker.classList.contains('show')) {
+    gifSearchInput.focus();
+    // Load trending GIFs when opening the picker
+    loadTrendingGifs();
+  }
+});
+
+gifSearchInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const query = gifSearchInput.value.trim();
+    if (query) {
+      searchGifs(query);
+    }
+  }
+});
+
+// Close GIF picker when clicking outside
+document.addEventListener('click', (e) => {
+  if (gifPicker.classList.contains('show') && 
+      !gifPicker.contains(e.target) && 
+      e.target !== gifButton) {
+    gifPicker.classList.remove('show');
+  }
+});
+
+// Functions
+function loginAsGuest(username) {
+  fetch('/api/auth/guest', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ username })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      currentUser = data.user;
+      loginModal.classList.add('hidden');
+      chatContainer.classList.remove('hidden');
+      
+      // Join the general chat room
+      socket.emit('join-room', currentRoom, currentUser.username);
+      
+      // Display welcome message
+      addMessageToChat('System', `Welcome, ${currentUser.username}!`);
+    } else {
+      alert('Login failed: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Login failed. Please try again.');
+  });
+}
+
+function sendMessage() {
+  const message = messageInput.value.trim();
+  if (message && currentUser) {
+    // Emit message to server
+    socket.emit('send-message', {
+      roomName: currentRoom,
+      message: message,
+      userName: currentUser.username,
+      userId: currentUser.id
+    });
+    
+    // Clear input
+    messageInput.value = '';
+  }
+}
+
+function addMessageToChat(username, message, isOwn = false) {
+  const messageElement = document.createElement('div');
+  messageElement.classList.add('message');
+  messageElement.classList.add(isOwn ? 'own' : 'other');
+  
+  const messageInfo = document.createElement('div');
+  messageInfo.classList.add('message-info');
+  messageInfo.textContent = `${username} - ${new Date().toLocaleTimeString()}`;
+  
+  const messageContent = document.createElement('div');
+  messageContent.textContent = message;
+  
+  messageElement.appendChild(messageInfo);
+  messageElement.appendChild(messageContent);
+  
+  chatMessages.appendChild(messageElement);
+  
+  // Scroll to bottom
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Socket.IO event handlers
+socket.on('user-joined', (username) => {
+  addMessageToChat('System', `${username} joined the chat`);
+});
+
+socket.on('receive-message', (data) => {
+  const isOwn = data.userId === currentUser?.id;
+  addMessageToChat(data.userName, data.message, isOwn);
+});
+
+socket.on('receive-gif', (data) => {
+  const isOwn = data.userId === currentUser?.id;
+  const gifElement = document.createElement('img');
+  gifElement.src = data.gifUrl;
+  gifElement.style.maxWidth = '200px';
+  gifElement.style.borderRadius = '10px';
+  
+  const messageElement = document.createElement('div');
+  messageElement.classList.add('message');
+  messageElement.classList.add(isOwn ? 'own' : 'other');
+  
+  const messageInfo = document.createElement('div');
+  messageInfo.classList.add('message-info');
+  messageInfo.textContent = `${data.userName} - ${new Date().toLocaleTimeString()}`;
+  
+  messageElement.appendChild(messageInfo);
+  messageElement.appendChild(gifElement);
+  
+  chatMessages.appendChild(messageElement);
+  
+  // Scroll to bottom
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+// GIF Functions
+function loadTrendingGifs() {
+  fetch('/api/giphy/trending')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        displayGifs(data.data.data);
+      }
+    })
+    .catch(error => {
+      console.error('Error loading trending GIFs:', error);
+    });
+}
+
+function searchGifs(query) {
+  fetch(`/api/giphy/search/${encodeURIComponent(query)}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        displayGifs(data.data.data);
+      }
+    })
+    .catch(error => {
+      console.error('Error searching GIFs:', error);
+    });
+}
+
+function displayGifs(gifs) {
+  // Clear previous results
+  gifResults.innerHTML = '';
+  
+  // Display new GIFs
+  gifs.forEach(gif => {
+    const gifItem = document.createElement('img');
+    gifItem.src = gif.images.fixed_height_small.url;
+    gifItem.alt = gif.title;
+    gifItem.classList.add('gif-item');
+    gifItem.addEventListener('click', () => {
+      sendGif(gif.images.original.url);
+    });
+    
+    gifResults.appendChild(gifItem);
+  });
+}
+
+function sendGif(gifUrl) {
+  if (currentUser) {
+    // Emit GIF to server
+    socket.emit('send-gif', {
+      roomName: currentRoom,
+      gifUrl: gifUrl,
+      userName: currentUser.username,
+      userId: currentUser.id
+    });
+    
+    // Close the GIF picker
+    gifPicker.classList.remove('show');
+    gifSearchInput.value = '';
+  }
+}
+
+// Check for token in URL (for OAuth callbacks)
+const urlParams = new URLSearchParams(window.location.search);
+const token = urlParams.get('token');
+if (token) {
+  // In a real implementation, you would validate the token
+  // For now, we'll just hide the login modal
+  loginModal.classList.add('hidden');
+  chatContainer.classList.remove('hidden');
+  
+  // Remove token from URL
+  window.history.replaceState({}, document.title, "/");
+}

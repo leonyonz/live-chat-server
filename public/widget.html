@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat Widget</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- Chat Container -->
+    <div id="chat-container" class="chat-container">
+        <div class="chat-header">
+            <h3>Live Chat</h3>
+            <button id="close-chat" class="close-btn">&times;</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will be displayed here -->
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="message-input" placeholder="Type a message...">
+            <button id="gif-button">GIF</button>
+            <button id="send-button">Send</button>
+        </div>
+        <!-- GIF Picker -->
+        <div id="gif-picker" class="gif-picker">
+            <div class="gif-search">
+                <input type="text" id="gif-search-input" placeholder="Search GIFs...">
+            </div>
+            <div id="gif-results" class="gif-results">
+                <!-- GIFs will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h2>Join Chat</h2>
+            <input type="text" id="username-input" placeholder="Enter your username">
+            <button id="guest-login">Join as Guest</button>
+            <div class="social-login">
+                <button id="google-login" class="social-btn google">Login with Google</button>
+                <button id="facebook-login" class="social-btn facebook">Login with Facebook</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="widget.js"></script>
+</body>
+</html>
