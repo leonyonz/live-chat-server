@@ -104,7 +104,10 @@ function loginAsGuest(username) {
       chatContainer.classList.remove('hidden');
       
       // Join the general chat room
-      socket.emit('join-room', currentRoom, currentUser.username);
+      socket.emit('join-room', currentRoom, currentUser.username, currentUser.id);
+      
+      // Load existing messages for the room
+      loadExistingMessages();
       
       // Display welcome message
       addMessageToChat('System', `Welcome, ${currentUser.username}!`);
@@ -118,6 +121,52 @@ function loginAsGuest(username) {
   });
 }
 
+function loadExistingMessages() {
+  // Clear existing messages
+  chatMessages.innerHTML = '';
+  
+  // Fetch messages from the server
+  fetch(`/api/messages/room/general`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.data.length > 0) {
+        data.data.forEach(msg => {
+          const isOwn = msg.userId._id === currentUser?.id;
+          if (msg.messageType === 'gif') {
+            // Handle GIF messages
+            const gifElement = document.createElement('img');
+            gifElement.src = msg.gifUrl;
+            gifElement.style.maxWidth = '200px';
+            gifElement.style.borderRadius = '10px';
+            
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.classList.add(isOwn ? 'own' : 'other');
+            
+            const messageInfo = document.createElement('div');
+            messageInfo.classList.add('message-info');
+            const timestamp = new Date(msg.createdAt).toLocaleTimeString();
+            messageInfo.textContent = `${msg.username} - ${timestamp}`;
+            
+            messageElement.appendChild(messageInfo);
+            messageElement.appendChild(gifElement);
+            
+            chatMessages.appendChild(messageElement);
+          } else {
+            // Handle text messages
+            addMessageToChat(msg.username, msg.content, isOwn);
+          }
+        });
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    })
+    .catch(error => {
+      console.error('Error loading messages:', error);
+    });
+}
+
 function sendMessage() {
   const message = messageInput.value.trim();
   if (message && currentUser) {
@@ -128,6 +177,9 @@ function sendMessage() {
       userName: currentUser.username,
       userId: currentUser.id
     });
+    
+    // Also add the message to the chat immediately for better UX
+    addMessageToChat(currentUser.username, message, true);
     
     // Clear input
     messageInput.value = '';
