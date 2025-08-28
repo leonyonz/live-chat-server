@@ -1,5 +1,7 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const messageService = require('../services/messageService');
+const Room = require('../models/Room');
 
 const router = express.Router();
 
@@ -58,8 +60,23 @@ router.post('/', authenticateUser, async (req, res) => {
 router.get('/room/:roomId', async (req, res) => {
   try {
     const { limit = 50, offset = 0 } = req.query;
+    
+    // Check if roomId is a valid ObjectId, if not treat it as room name
+    let roomId = req.params.roomId;
+    if (!mongoose.Types.ObjectId.isValid(roomId)) {
+      // Find room by name and get its ID
+      const room = await Room.findOne({ name: roomId });
+      if (!room) {
+        return res.status(404).json({
+          success: false,
+          message: 'Room not found'
+        });
+      }
+      roomId = room._id;
+    }
+    
     const messages = await messageService.getMessagesByRoom(
-      req.params.roomId, 
+      roomId, 
       parseInt(limit), 
       parseInt(offset)
     );
