@@ -287,6 +287,7 @@ function startMessageSync() {
 }
 
 function sendMessage() {
+  console.log('Sending message:', messageInput.value);
   const message = messageInput.value.trim();
   if (message && currentUser) {
     // Emit message to server
@@ -303,14 +304,19 @@ function sendMessage() {
 }
 
 function addMessageToChat(username, message, isOwn = false, messageId = null) {
+  console.log('Adding message to chat:', { username, message, isOwn, messageId });
+  console.log('Displayed message IDs:', Array.from(displayedMessageIds));
+  
   // Prevent duplicate messages
   if (messageId && displayedMessageIds.has(messageId)) {
+    console.log('Message already displayed, skipping:', messageId);
     return;
   }
   
   // Add message ID to the set of displayed messages
   if (messageId) {
     displayedMessageIds.add(messageId);
+    console.log('Added message ID to displayed set:', messageId);
   }
   
   const messageElement = document.createElement('div');
