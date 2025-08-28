@@ -307,9 +307,6 @@ function sendMessage() {
       userId: currentUser.id
     });
     
-    // Also add the message to the chat immediately for better UX
-    addMessageToChat(currentUser.username, message, true);
-    
     // Clear input
     messageInput.value = '';
   }
