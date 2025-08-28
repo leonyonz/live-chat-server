@@ -106,6 +106,7 @@
   border: 1px solid #ddd;
   border-radius: 20px;
   outline: none;
+  min-width: 0; /* Allow the input to shrink */
 }
 
 #send-button {
@@ -130,6 +131,8 @@
   border: none;
   border-radius: 20px;
   cursor: pointer;
+  flex-shrink: 0; /* Prevent the button from shrinking */
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 #gif-button:hover {
