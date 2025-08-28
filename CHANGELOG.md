@@ -30,6 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- WordPress plugin for easy integration with WordPress sites
+- WordPress plugin includes admin settings page for configuration
+- WordPress shortcode support for embedding chat in posts/pages
+- Documentation for WordPress integration in README
+
 ### Fixed
 - Fixed ObjectId casting issue when fetching messages by room name
 - Fixed room creation issue with missing createdBy field

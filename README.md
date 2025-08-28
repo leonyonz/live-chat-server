@@ -256,6 +256,18 @@ To embed the chat widget on another website, include the following script:
 
 Replace `localhost:3000` with your actual server URL in production.
 
+### WordPress Integration
+
+For WordPress users, we've created a dedicated plugin that makes it even easier to embed the chat widget:
+
+1. Navigate to the `wordpress-plugin` directory in the project
+2. Copy the `live-chat-wordpress` folder to your WordPress plugins directory (`wp-content/plugins/`)
+3. Activate the plugin through the WordPress admin panel
+4. Go to Settings > Live Chat to configure the plugin with your server URL
+5. The chat widget will automatically appear on your site
+
+Alternatively, you can use the shortcode `[live_chat]` to embed the chat in specific posts or pages.
+
 ## Admin Dashboard
 
 The application includes a comprehensive admin dashboard for managing the chat system. The dashboard provides administrators with tools to monitor and control users, rooms, and messages.
