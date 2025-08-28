@@ -283,12 +283,54 @@ socket.on('user-joined', (username) => {
 });
 
 socket.on('receive-message', (data) => {
-  const isOwn = data.userId && typeof data.userId === 'object' ? data.userId._id === currentUser?.id : data.userId === currentUser?.id;
+  console.log('Received message data:', data);
+  console.log('Current user:', currentUser);
+  
+  // Check if currentUser is set
+  if (!currentUser) {
+    console.log('Warning: currentUser is not set yet');
+    addMessageToChat(data.userName, data.message, false);
+    return;
+  }
+  
+  const isOwn = data.userId && typeof data.userId === 'object' ? data.userId._id === currentUser.id : data.userId === currentUser.id;
+  console.log('Is own message:', isOwn, 'Data userId:', data.userId, 'Current user id:', currentUser.id);
   addMessageToChat(data.userName, data.message, isOwn);
 });
 
 socket.on('receive-gif', (data) => {
-  const isOwn = data.userId && typeof data.userId === 'object' ? data.userId._id === currentUser?.id : data.userId === currentUser?.id;
+  console.log('Received GIF data:', data);
+  console.log('Current user:', currentUser);
+  
+  // Check if currentUser is set
+  if (!currentUser) {
+    console.log('Warning: currentUser is not set yet');
+    const gifElement = document.createElement('img');
+    gifElement.src = data.gifUrl;
+    gifElement.style.maxWidth = '200px';
+    gifElement.style.borderRadius = '10px';
+    
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.classList.add('other');
+    
+    const messageInfo = document.createElement('div');
+    messageInfo.classList.add('message-info');
+    messageInfo.textContent = `${data.userName} - ${new Date().toLocaleTimeString()}`;
+    
+    messageElement.appendChild(messageInfo);
+    messageElement.appendChild(gifElement);
+    
+    chatMessages.appendChild(messageElement);
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return;
+  }
+  
+  const isOwn = data.userId && typeof data.userId === 'object' ? data.userId._id === currentUser.id : data.userId === currentUser.id;
+  console.log('Is own GIF:', isOwn, 'Data userId:', data.userId, 'Current user id:', currentUser.id);
+  
   const gifElement = document.createElement('img');
   gifElement.src = data.gifUrl;
   gifElement.style.maxWidth = '200px';
