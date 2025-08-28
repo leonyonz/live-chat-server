@@ -283,12 +283,12 @@ socket.on('user-joined', (username) => {
 });
 
 socket.on('receive-message', (data) => {
-  const isOwn = data.userId === currentUser?.id;
+  const isOwn = data.userId && typeof data.userId === 'object' ? data.userId._id === currentUser?.id : data.userId === currentUser?.id;
   addMessageToChat(data.userName, data.message, isOwn);
 });
 
 socket.on('receive-gif', (data) => {
-  const isOwn = data.userId === currentUser?.id;
+  const isOwn = data.userId && typeof data.userId === 'object' ? data.userId._id === currentUser?.id : data.userId === currentUser?.id;
   const gifElement = document.createElement('img');
   gifElement.src = data.gifUrl;
   gifElement.style.maxWidth = '200px';
