@@ -43,8 +43,9 @@ Before you begin, ensure you have the following installed on your system:
    - Download from [git-scm.com](https://git-scm.com/downloads)
    - Verify installation: `git --version`
 
-5. **Giphy API Key** (optional, for GIF functionality)
-   - Register at [developers.giphy.com](https://developers.giphy.com/)
+5. **Giphy API Key** (required for GIF functionality)
+   - Register for a free API key at [developers.giphy.com](https://developers.giphy.com/)
+   - You must set a valid GIPHY_API_KEY in your `.env` file for GIF search to work.
 
 6. **Google OAuth Credentials** (optional, for Google login)
    - Create a project in [Google Cloud Console](https://console.cloud.google.com/)
@@ -70,7 +71,7 @@ Edit the `.env` file to set your configuration:
 - MongoDB credentials
 - JWT secret (generate a secure random string)
 - Google/Facebook OAuth credentials (if using social login)
-- Giphy API key (if using GIF functionality)
+- **Giphy API key**: Replace the placeholder with your real API key from https://developers.giphy.com/ (required for GIF search)
 - Frontend URL
 
 ### 3. Using Docker (Recommended)

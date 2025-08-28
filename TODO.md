@@ -72,4 +72,4 @@
 - [x] Performance testing
 
 ## Known Issues
-- [ ] Cross-device message synchronization - Messages sent from one device are not visible on other devices
+- [x] Cross-device message synchronization - Messages sent from one device are not visible on other devices

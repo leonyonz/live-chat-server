@@ -57,6 +57,9 @@ app.use('/api/messages', messageRoutes);
 const messageService = require('./services/messageService');
 const Room = require('./models/Room');
 
+// Track user connections to handle cross-device sync
+const userConnections = new Map(); // Maps userId to array of socket IDs
+
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -66,6 +69,13 @@ io.on('connection', (socket) => {
     socket.join(roomName);
     // Notify others in the room that a user has joined
     socket.to(roomName).emit('user-joined', userName);
+    
+    // Track user connections for cross-device sync
+    if (!userConnections.has(userId)) {
+      userConnections.set(userId, []);
+    }
+    userConnections.get(userId).push(socket.id);
+    socket.userId = userId; // Store userId on socket for easy access
     
     // Get room ID for message saving
     try {
@@ -157,8 +167,33 @@ io.on('connection', (socket) => {
   // Handle user disconnect
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
+    
+    // Clean up user connections tracking
+    if (socket.userId) {
+      const connections = userConnections.get(socket.userId);
+      if (connections) {
+        const index = connections.indexOf(socket.id);
+        if (index > -1) {
+          connections.splice(index, 1);
+        }
+        // If no more connections for this user, remove the entry
+        if (connections.length === 0) {
+          userConnections.delete(socket.userId);
+        }
+      }
+    }
   });
 });
+
+// Helper function to emit to all connections of a user
+function emitToUser(userId, event, data) {
+  const connections = userConnections.get(userId);
+  if (connections) {
+    connections.forEach(socketId => {
+      io.to(socketId).emit(event, data);
+    });
+  }
+}
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

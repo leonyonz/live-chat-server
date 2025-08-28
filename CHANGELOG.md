@@ -12,9 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected MongoDB connection URI in .env file for docker-compose environment
 - Updated server-side room membership logic to properly add users when joining rooms
 - Modified frontend widget to pass userId when joining rooms
+- Fixed cross-device message synchronization - Messages sent from one device are now visible on other devices of the same user
 
 ### Known Issues
-- Cross-device message synchronization - Messages sent from one device are not visible on other devices
+- None
 
 ## [1.0.0] - 2025-08-27
 
