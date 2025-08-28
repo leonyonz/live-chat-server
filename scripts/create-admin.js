@@ -2,7 +2,9 @@
 
 /**
  * Script to create an admin user
- * Usage: node scripts/create-admin.js --username <username> --email <email> --password <password>
+ * Usage: 
+ *   1. Direct execution: node scripts/create-admin.js --username <username> --email <email> --password <password>
+ *   2. Docker execution: docker-compose exec app node scripts/create-admin.js --username <username> --email <email> --password <password>
  */
 
 const mongoose = require('mongoose');
@@ -10,18 +12,17 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 // const connectDB = require('../config/database');
 
-// Simple database connection for CLI script
+// Database connection for CLI script
 async function connectDB() {
-  // Try to connect to Docker container MongoDB first, fallback to localhost
-  const mongoUri = process.env.MONGODB_URI || 'mongodb://admin:password@localhost:27017/livechat?authSource=admin';
-  const dockerMongoUri = 'mongodb://admin:password@localhost:27017/livechat?authSource=admin';
+  // Use the same connection string as the app, which works within Docker network
+  const mongoUri = process.env.MONGODB_URI || 'mongodb://admin:password@mongodb:27017/livechat?authSource=admin';
   
   try {
     console.log('Connecting to MongoDB...');
-    return await mongoose.connect(dockerMongoUri);
-  } catch (err) {
-    console.log('Failed to connect to Docker MongoDB, trying localhost...');
     return await mongoose.connect(mongoUri);
+  } catch (err) {
+    console.error('Failed to connect to MongoDB:', err.message);
+    process.exit(1);
   }
 }
 
