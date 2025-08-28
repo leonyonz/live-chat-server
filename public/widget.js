@@ -23,89 +23,113 @@ socket.on('disconnect', (reason) => {
 });
 
 // DOM Elements
-const chatBubble = document.getElementById('chat-bubble');
-const chatContainer = document.getElementById('chat-container');
-const closeChat = document.getElementById('close-chat');
-const chatMessages = document.getElementById('chat-messages');
-const messageInput = document.getElementById('message-input');
-const gifButton = document.getElementById('gif-button');
-const sendButton = document.getElementById('send-button');
-const loginModal = document.getElementById('login-modal');
-const usernameInput = document.getElementById('username-input');
-const guestLogin = document.getElementById('guest-login');
-const googleLogin = document.getElementById('google-login');
-const facebookLogin = document.getElementById('facebook-login');
-const gifPicker = document.getElementById('gif-picker');
-const gifSearchInput = document.getElementById('gif-search-input');
-const gifResults = document.getElementById('gif-results');
+let chatBubble, chatContainer, closeChat, chatMessages, messageInput, gifButton, sendButton;
+let loginModal, usernameInput, guestLogin, googleLogin, facebookLogin, gifPicker, gifSearchInput, gifResults;
 
 // User state
 let currentUser = null;
 let currentRoom = 'general';
 
-// Event Listeners
-chatBubble.addEventListener('click', () => {
-  if (currentUser) {
-    chatContainer.classList.remove('hidden');
-  } else {
-    loginModal.classList.remove('hidden');
+// Initialize elements when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  chatBubble = document.getElementById('chat-bubble');
+  chatContainer = document.getElementById('chat-container');
+  closeChat = document.getElementById('close-chat');
+  chatMessages = document.getElementById('chat-messages');
+  messageInput = document.getElementById('message-input');
+  gifButton = document.getElementById('gif-button');
+  sendButton = document.getElementById('send-button');
+  loginModal = document.getElementById('login-modal');
+  usernameInput = document.getElementById('username-input');
+  guestLogin = document.getElementById('guest-login');
+  googleLogin = document.getElementById('google-login');
+  facebookLogin = document.getElementById('facebook-login');
+  gifPicker = document.getElementById('gif-picker');
+  gifSearchInput = document.getElementById('gif-search-input');
+  gifResults = document.getElementById('gif-results');
+
+  // Add event listeners only if elements exist
+  if (chatBubble) {
+    chatBubble.addEventListener('click', () => {
+      if (currentUser) {
+        chatContainer.classList.remove('hidden');
+      } else {
+        loginModal.classList.remove('hidden');
+      }
+    });
   }
-});
 
-closeChat.addEventListener('click', () => {
-  chatContainer.classList.add('hidden');
-});
-
-sendButton.addEventListener('click', sendMessage);
-messageInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    sendMessage();
+  if (closeChat) {
+    closeChat.addEventListener('click', () => {
+      chatContainer.classList.add('hidden');
+    });
   }
-});
 
-guestLogin.addEventListener('click', () => {
-  const username = usernameInput.value.trim();
-  if (username) {
-    loginAsGuest(username);
+  if (sendButton && messageInput) {
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
   }
-});
 
-googleLogin.addEventListener('click', () => {
-  // Redirect to Google OAuth
-  window.location.href = '/api/auth/google';
-});
-
-facebookLogin.addEventListener('click', () => {
-  // Redirect to Facebook OAuth
-  window.location.href = '/api/auth/facebook';
-});
-
-// GIF Picker Event Listeners
-gifButton.addEventListener('click', () => {
-  gifPicker.classList.toggle('show');
-  if (gifPicker.classList.contains('show')) {
-    gifSearchInput.focus();
-    // Load trending GIFs when opening the picker
-    loadTrendingGifs();
+  if (guestLogin && usernameInput) {
+    guestLogin.addEventListener('click', () => {
+      const username = usernameInput.value.trim();
+      if (username) {
+        loginAsGuest(username);
+      }
+    });
   }
-});
 
-gifSearchInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    const query = gifSearchInput.value.trim();
-    if (query) {
-      searchGifs(query);
+  if (googleLogin) {
+    googleLogin.addEventListener('click', () => {
+      // Redirect to Google OAuth
+      window.location.href = '/api/auth/google';
+    });
+  }
+
+  if (facebookLogin) {
+    facebookLogin.addEventListener('click', () => {
+      // Redirect to Facebook OAuth
+      window.location.href = '/api/auth/facebook';
+    });
+  }
+
+  // GIF Picker Event Listeners
+  if (gifButton) {
+    gifButton.addEventListener('click', () => {
+      if (gifPicker) {
+        gifPicker.classList.toggle('show');
+        if (gifPicker.classList.contains('show') && gifSearchInput) {
+          gifSearchInput.focus();
+          // Load trending GIFs when opening the picker
+          loadTrendingGifs();
+        }
+      }
+    });
+  }
+
+  if (gifSearchInput) {
+    gifSearchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const query = gifSearchInput.value.trim();
+        if (query) {
+          searchGifs(query);
+        }
+      }
+    });
+  }
+
+  // Close GIF picker when clicking outside
+  document.addEventListener('click', (e) => {
+    if (gifPicker && gifPicker.classList.contains('show') && 
+        !gifPicker.contains(e.target) && 
+        gifButton && e.target !== gifButton) {
+      gifPicker.classList.remove('show');
     }
-  }
-});
-
-// Close GIF picker when clicking outside
-document.addEventListener('click', (e) => {
-  if (gifPicker.classList.contains('show') && 
-      !gifPicker.contains(e.target) && 
-      e.target !== gifButton) {
-    gifPicker.classList.remove('show');
-  }
+  });
 });
 
 // Functions
@@ -199,6 +223,11 @@ let lastMessageId = null;
 
 // Periodically check for new messages to handle cross-device sync
 function startMessageSync() {
+  // Initialize lastMessageId if needed
+  if (typeof lastMessageId === 'undefined') {
+    lastMessageId = null;
+  }
+  
   setInterval(() => {
     if (currentRoom && currentUser) {
       // Build query parameters
