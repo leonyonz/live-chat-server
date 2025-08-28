@@ -1,5 +1,20 @@
 // Socket.IO connection
+console.log('Attempting to connect to Socket.IO server');
 const socket = io();
+console.log('Socket object created:', socket);
+
+// Add connection event listeners
+socket.on('connect', () => {
+  console.log('Socket connected successfully, socket ID:', socket.id);
+});
+
+socket.on('connect_error', (error) => {
+  console.error('Socket connection error:', error);
+});
+
+socket.on('disconnect', (reason) => {
+  console.log('Socket disconnected, reason:', reason);
+});
 
 // DOM Elements
 const chatBubble = document.getElementById('chat-bubble');
