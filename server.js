@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const giphyRoutes = require('./routes/giphy');
 const roomRoutes = require('./routes/rooms');
 const messageRoutes = require('./routes/messages');
+const adminRoutes = require('./routes/admin');
 const path = require('path');
 require('dotenv').config();
 
@@ -41,6 +42,11 @@ app.get('/widget.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'widget.html'));
 });
 
+// Admin dashboard route
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin', 'admin.html'));
+});
+
 // Authentication routes
 app.use('/api/auth', authRoutes);
 
@@ -52,6 +58,9 @@ app.use('/api/rooms', roomRoutes);
 
 // Message routes
 app.use('/api/messages', messageRoutes);
+
+// Admin routes
+app.use('/api/admin', adminRoutes);
 
 // Import message service
 const messageService = require('./services/messageService');

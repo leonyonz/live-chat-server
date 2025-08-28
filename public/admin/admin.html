@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Live Chat</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active" data-tab="dashboard">Dashboard</a></li>
+                    <li><a href="#" data-tab="users">Users</a></li>
+                    <li><a href="#" data-tab="rooms">Rooms</a></li>
+                    <li><a href="#" data-tab="messages">Messages</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header>
+                <h1>Live Chat Administration</h1>
+                <div class="user-info">
+                    <span id="admin-name">Admin User</span>
+                    <button id="logout-btn">Logout</button>
+                </div>
+            </header>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content active">
+                <h2>Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <p id="total-users">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Rooms</h3>
+                        <p id="total-rooms">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Messages</h3>
+                        <p id="total-messages">0</p>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <div class="activity-section">
+                        <h3>Recent Users</h3>
+                        <table id="recent-users-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Recent users will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="activity-section">
+                        <h3>Recent Rooms</h3>
+                        <table id="recent-rooms-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Created By</th>
+                                    <th>Members</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Recent rooms will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="activity-section">
+                        <h3>Recent Messages</h3>
+                        <table id="recent-messages-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Room</th>
+                                    <th>Content</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Recent messages will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users-tab" class="tab-content">
+                <h2>User Management</h2>
+                <div class="controls">
+                    <input type="text" id="user-search" placeholder="Search users...">
+                    <button id="refresh-users">Refresh</button>
+                </div>
+                <table id="users-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Provider</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Users will be populated here -->
+                    </tbody>
+                </table>
+                <div class="pagination" id="users-pagination">
+                    <!-- Pagination will be populated here -->
+                </div>
+            </div>
+
+            <!-- Rooms Tab -->
+            <div id="rooms-tab" class="tab-content">
+                <h2>Room Management</h2>
+                <div class="controls">
+                    <input type="text" id="room-search" placeholder="Search rooms...">
+                    <button id="refresh-rooms">Refresh</button>
+                </div>
+                <table id="rooms-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Created By</th>
+                            <th>Members</th>
+                            <th>Private</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rooms will be populated here -->
+                    </tbody>
+                </table>
+                <div class="pagination" id="rooms-pagination">
+                    <!-- Pagination will be populated here -->
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="messages-tab" class="tab-content">
+                <h2>Message Moderation</h2>
+                <div class="controls">
+                    <input type="text" id="message-search" placeholder="Search messages...">
+                    <button id="refresh-messages">Refresh</button>
+                </div>
+                <table id="messages-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Room</th>
+                            <th>Content</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Messages will be populated here -->
+                    </tbody>
+                </table>
+                <div class="pagination" id="messages-pagination">
+                    <!-- Pagination will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Confirm Action</h3>
+            <p id="modal-message">Are you sure you want to perform this action?</p>
+            <div class="modal-actions">
+                <button id="modal-cancel">Cancel</button>
+                <button id="modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
