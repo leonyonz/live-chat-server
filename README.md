@@ -62,14 +62,16 @@ npm run dev
 
 For detailed documentation, please refer to our [Wiki](https://github.com/leonyonz/live-chat-server/wiki):
 
+- [Home](https://github.com/leonyonz/live-chat-server/wiki)
 - [Setup and Installation Guide](https://github.com/leonyonz/live-chat-server/wiki/Setup-and-Installation)
 - [Configuration Guide](https://github.com/leonyonz/live-chat-server/wiki/Configuration)
-- [Deployment Guide](https://github.com/leonyonz/live-chat-server/wiki/Deployment)
-- [Admin Dashboard Guide](https://github.com/leonyonz/live-chat-server/wiki/Admin-Dashboard)
+- [Deployment Guide](https://github.com/leonyonz/live-chat-server/wiki/Deployment-Guide)
+- [Admin Dashboard Guide](https://github.com/leonyonz/live-chat-server/wiki/Admin-Dashboard-Guide)
 - [API Documentation](https://github.com/leonyonz/live-chat-server/wiki/API-Documentation)
-- [Debugging Guide](https://github.com/leonyonz/live-chat-server/wiki/Debugging)
+- [Debugging Guide](https://github.com/leonyonz/live-chat-server/wiki/Debugging-Guide)
 - [Changelog](https://github.com/leonyonz/live-chat-server/wiki/Changelog)
-- [Troubleshooting](https://github.com/leonyonz/live-chat-server/wiki/Troubleshooting)
+
+You can also browse the documentation directly in the repository at [docs/wiki/](docs/wiki/).
 
 ## Project Structure
 
