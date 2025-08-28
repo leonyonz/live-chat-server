@@ -128,11 +128,13 @@
   padding: 10px 15px;
   background-color: #FF9800;
   color: white;
-  border: none;
+  border: 2px solid #FF5722; /* Add a prominent border for debugging */
   border-radius: 20px;
   cursor: pointer;
   flex-shrink: 0; /* Prevent the button from shrinking */
   white-space: nowrap; /* Prevent text wrapping */
+  font-weight: bold; /* Make text bold for better visibility */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Add shadow for better visibility */
 }
 
 #gif-button:hover {
