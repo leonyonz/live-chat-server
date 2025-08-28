@@ -134,7 +134,7 @@ function loadExistingMessages() {
     .then(data => {
       if (data.success && data.data.length > 0) {
         data.data.forEach(msg => {
-          const isOwn = msg.userId._id === currentUser?.id;
+          const isOwn = msg.userId && msg.userId._id ? msg.userId._id === currentUser?.id : msg.userId === currentUser?.id;
           if (msg.messageType === 'gif') {
             // Handle GIF messages
             const gifElement = document.createElement('img');
@@ -202,7 +202,7 @@ function startMessageSync() {
                 lastMessageId = msg._id;
               }
               
-              const isOwn = msg.userId._id === currentUser?.id;
+              const isOwn = msg.userId && msg.userId._id ? msg.userId._id === currentUser?.id : msg.userId === currentUser?.id;
               if (msg.messageType === 'gif') {
                 // Handle GIF messages
                 const gifElement = document.createElement('img');
