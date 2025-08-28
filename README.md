@@ -14,6 +14,7 @@ A Chatango-like live chat application with the following features:
 - Embeddable chat widget with bubble UI
 - Persistent chat history with MongoDB
 - Responsive design for all devices
+- Admin dashboard for user/room/message management
 
 ## Development Approach
 - Branch-per-feature development
@@ -254,3 +255,34 @@ To embed the chat widget on another website, include the following script:
 ```
 
 Replace `localhost:3000` with your actual server URL in production.
+
+## Admin Dashboard
+
+The application includes a comprehensive admin dashboard for managing the chat system. The dashboard provides administrators with tools to monitor and control users, rooms, and messages.
+
+### Accessing the Admin Dashboard
+
+1. Create an admin user using the secure CLI script:
+   ```bash
+   docker-compose exec app node scripts/create-admin.js --username admin --email admin@example.com --password securepassword
+   ```
+
+2. Access the admin dashboard at: http://localhost:3000/admin
+
+3. Log in with the admin credentials created in step 1
+
+### Admin Dashboard Features
+
+- **Dashboard Overview**: Statistics on total users, rooms, and messages
+- **User Management**: View, promote/demote, and delete users
+- **Room Management**: View and delete chat rooms
+- **Message Moderation**: View and delete messages
+- **Real-time Monitoring**: See recent activity across the platform
+- **Search & Pagination**: Efficiently browse through large datasets
+
+### Security
+
+- Admin creation requires direct server access (cannot be done remotely)
+- All admin actions require JWT authentication
+- MongoDB is not exposed externally, only accessible within the Docker network
+- Passwords are securely hashed using bcrypt
