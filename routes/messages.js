@@ -59,7 +59,7 @@ router.post('/', authenticateUser, async (req, res) => {
 // Get messages for a room
 router.get('/room/:roomId', async (req, res) => {
   try {
-    const { limit = 50, offset = 0 } = req.query;
+    const { limit = 50, offset = 0, since = null } = req.query;
     
     // Check if roomId is a valid ObjectId, if not treat it as room name
     let roomId = req.params.roomId;
@@ -78,7 +78,8 @@ router.get('/room/:roomId', async (req, res) => {
     const messages = await messageService.getMessagesByRoom(
       roomId, 
       parseInt(limit), 
-      parseInt(offset)
+      parseInt(offset),
+      since
     );
     
     res.json({

@@ -40,12 +40,20 @@ class MessageService {
   }
 
   // Get messages for a room
-  async getMessagesByRoom(roomId, limit = 50, offset = 0) {
+  async getMessagesByRoom(roomId, limit = 50, offset = 0, since = null) {
     try {
-      const messages = await Message.find({ 
+      // Build query conditions
+      const conditions = { 
         roomId: roomId,
         isDeleted: false
-      })
+      };
+      
+      // Add since condition if provided
+      if (since) {
+        conditions._id = { $gt: since };
+      }
+      
+      const messages = await Message.find(conditions)
       .sort({ createdAt: -1 })
       .skip(offset)
       .limit(limit)

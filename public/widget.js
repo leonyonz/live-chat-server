@@ -170,27 +170,38 @@ function loadExistingMessages() {
     });
 }
 
+// Store the ID of the last received message to avoid duplicates
+let lastMessageId = null;
+
 // Periodically check for new messages to handle cross-device sync
 function startMessageSync() {
   setInterval(() => {
     if (currentRoom && currentUser) {
-      fetch(`/api/messages/room/general`)
+      // Build query parameters
+      let url = `/api/messages/room/general`;
+      if (lastMessageId) {
+        // Only fetch messages newer than the last received message
+        url += `?since=${lastMessageId}`;
+      }
+      
+      fetch(url)
         .then(response => response.json())
         .then(data => {
           if (data.success && data.data.length > 0) {
-            // Get the last message timestamp we have in the UI
-            const messages = chatMessages.querySelectorAll('.message');
-            let lastTimestamp = 0;
+            // Process messages in chronological order (they come in reverse order from API)
+            const messages = data.data.reverse();
             
-            if (messages.length > 0) {
-              // In a real implementation, you'd want to track message IDs
-              // For now, we'll just check the last message
-              lastTimestamp = messages.length;
-            }
-            
-            // Add new messages that we don't have yet
-            const newMessages = data.data.slice(lastTimestamp);
-            newMessages.forEach(msg => {
+            messages.forEach(msg => {
+              // Skip if we've already processed this message
+              if (lastMessageId && msg._id <= lastMessageId) {
+                return;
+              }
+              
+              // Update lastMessageId to the newest message we've seen
+              if (!lastMessageId || msg._id > lastMessageId) {
+                lastMessageId = msg._id;
+              }
+              
               const isOwn = msg.userId._id === currentUser?.id;
               if (msg.messageType === 'gif') {
                 // Handle GIF messages

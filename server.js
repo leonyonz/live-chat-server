@@ -82,7 +82,7 @@ io.on('connection', (socket) => {
       let room = await Room.findOne({ name: roomName });
       if (!room) {
         // Create room if it doesn't exist
-        room = new Room({ name: roomName, members: [userId] });
+        room = new Room({ name: roomName, createdBy: userId, members: [userId] });
         await room.save();
       } else {
         // Add user to room members if not already a member
