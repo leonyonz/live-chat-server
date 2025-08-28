@@ -4,9 +4,9 @@ Welcome to the Live Chat Server documentation wiki! This wiki contains comprehen
 
 ## Getting Started
 
+- [Quick Start Guide](Quick-Start-Guide.md) - Fast track to getting the application running
 - [Setup and Installation Guide](Setup-and-Installation.md) - Complete guide to installing and configuring the application
 - [Configuration Guide](Configuration.md) - Detailed information about environment variables and configuration options
-- [Quick Start Guide](Quick-Start-Guide.md) - Fast track to getting the application running
 
 ## User Guides
 
