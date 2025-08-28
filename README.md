@@ -73,6 +73,16 @@ For detailed documentation, please refer to our [Wiki](https://github.com/leonyo
 
 You can also browse the documentation directly in the repository at [docs/wiki/](docs/wiki/).
 
+### Managing Documentation via CLI
+
+To update the GitHub wiki with the latest documentation from the repository:
+
+```bash
+./update-wiki.sh
+```
+
+This script will copy all documentation files from `docs/wiki/` to the wiki repository and provide instructions for pushing the changes to GitHub.
+
 ## Project Structure
 
 ```
