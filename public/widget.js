@@ -133,9 +133,8 @@ function loginAsGuest(username) {
       // Display welcome message
       addMessageToChat('System', `Welcome, ${currentUser.username}!`);
       
-      // Note: We're relying on real-time socket events instead of polling
-      // Start message synchronization for cross-device support is not needed
-      // as socket events handle real-time updates
+      // Start message synchronization for cross-device support
+      startMessageSync();
     } else {
       alert('Login failed: ' + data.message);
     }
@@ -156,7 +155,10 @@ function loadExistingMessages() {
     .then(data => {
       if (data.success && data.data.length > 0) {
         data.data.forEach(msg => {
-          const isOwn = msg.userId && msg.userId._id ? msg.userId._id === currentUser?.id : msg.userId === currentUser?.id;
+          // Handle both string and object userId formats
+          const msgUserId = msg.userId && msg.userId._id ? msg.userId._id : msg.userId;
+          const isOwn = msgUserId === currentUser?.id;
+          
           if (msg.messageType === 'gif') {
             // Handle GIF messages
             const gifElement = document.createElement('img');
@@ -193,71 +195,77 @@ function loadExistingMessages() {
 }
 
 // Store the ID of the last received message to avoid duplicates
-// let lastMessageId = null;
+let lastMessageId = null;
 
-// // Periodically check for new messages to handle cross-device sync
-// function startMessageSync() {
-//   setInterval(() => {
-//     if (currentRoom && currentUser) {
-//       // Build query parameters
-//       let url = `/api/messages/room/general`;
-//       if (lastMessageId) {
-//         // Only fetch messages newer than the last received message
-//         url += `?since=${lastMessageId}`;
-//       }
-//       
-//       fetch(url)
-//         .then(response => response.json())
-//         .then(data => {
-//           if (data.success && data.data.length > 0) {
-//             // Process messages in chronological order (they come in reverse order from API)
-//             const messages = data.data.reverse();
-//             
-//             messages.forEach(msg => {
-//               // Skip if we've already processed this message
-//               if (lastMessageId && msg._id <= lastMessageId) {
-//                 return;
-//               }
-//               
-//               // Update lastMessageId to the newest message we've seen
-//               if (!lastMessageId || msg._id > lastMessageId) {
-//                 lastMessageId = msg._id;
-//               }
-//               
-//               const isOwn = msg.userId && msg.userId._id ? msg.userId._id === currentUser?.id : msg.userId === currentUser?.id;
-//               if (msg.messageType === 'gif') {
-//                 // Handle GIF messages
-//                 const gifElement = document.createElement('img');
-//                 gifElement.src = msg.gifUrl;
-//                 gifElement.style.maxWidth = '200px';
-//                 gifElement.style.borderRadius = '10px';
-//                 
-//                 const messageElement = document.createElement('div');
-//                 messageElement.classList.add('message');
-//                 messageElement.classList.add(isOwn ? 'own' : 'other');
-//                 
-//                 const messageInfo = document.createElement('div');
-//                 messageInfo.classList.add('message-info');
-//                 const timestamp = new Date(msg.createdAt).toLocaleTimeString();
-//                 messageInfo.textContent = `${msg.username} - ${timestamp}`;
-//                 
-//                 messageElement.appendChild(messageInfo);
-//                 messageElement.appendChild(gifElement);
-//                 
-//                 chatMessages.appendChild(messageElement);
-//               } else {
-//                 // Handle text messages
-//                 addMessageToChat(msg.username, msg.content, isOwn);
-//               }
-//             });
-//           }
-//         })
-//         .catch(error => {
-//           console.error('Error syncing messages:', error);
-//         });
-//     }
-//   }, 3000); // Check every 3 seconds
-// }
+// Periodically check for new messages to handle cross-device sync
+function startMessageSync() {
+  setInterval(() => {
+    if (currentRoom && currentUser) {
+      // Build query parameters
+      let url = `/api/messages/room/general`;
+      if (lastMessageId) {
+        // Only fetch messages newer than the last received message
+        url += `?since=${lastMessageId}`;
+      }
+      
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.data.length > 0) {
+            // Process messages in chronological order (they come in reverse order from API)
+            const messages = data.data.reverse();
+            
+            messages.forEach(msg => {
+              // Skip if we've already processed this message
+              if (lastMessageId && msg._id <= lastMessageId) {
+                return;
+              }
+              
+              // Update lastMessageId to the newest message we've seen
+              if (!lastMessageId || msg._id > lastMessageId) {
+                lastMessageId = msg._id;
+              }
+              
+              // Handle both string and object userId formats
+              const msgUserId = msg.userId && msg.userId._id ? msg.userId._id : msg.userId;
+              const isOwn = msgUserId === currentUser?.id;
+              
+              if (msg.messageType === 'gif') {
+                // Handle GIF messages
+                const gifElement = document.createElement('img');
+                gifElement.src = msg.gifUrl;
+                gifElement.style.maxWidth = '200px';
+                gifElement.style.borderRadius = '10px';
+                
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.classList.add(isOwn ? 'own' : 'other');
+                
+                const messageInfo = document.createElement('div');
+                messageInfo.classList.add('message-info');
+                const timestamp = new Date(msg.createdAt).toLocaleTimeString();
+                messageInfo.textContent = `${msg.username} - ${timestamp}`;
+                
+                messageElement.appendChild(messageInfo);
+                messageElement.appendChild(gifElement);
+                
+                chatMessages.appendChild(messageElement);
+              } else {
+                // Handle text messages
+                addMessageToChat(msg.username, msg.content, isOwn);
+              }
+            });
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }
+        })
+        .catch(error => {
+          console.error('Error syncing messages:', error);
+        });
+    }
+  }, 3000); // Check every 3 seconds
+}
 
 function sendMessage() {
   const message = messageInput.value.trim();
@@ -315,8 +323,10 @@ socket.on('receive-message', (data) => {
     return;
   }
   
-  const isOwn = data.userId && typeof data.userId === 'object' ? data.userId._id === currentUser.id : data.userId === currentUser.id;
-  console.log('Is own message:', isOwn, 'Data userId:', data.userId, 'Current user id:', currentUser.id);
+  // Handle both string and object userId formats
+  const dataUserId = data.userId && typeof data.userId === 'object' ? data.userId._id : data.userId;
+  const isOwn = dataUserId === currentUser.id;
+  console.log('Is own message:', isOwn, 'Data userId:', dataUserId, 'Current user id:', currentUser.id);
   addMessageToChat(data.userName, data.message, isOwn);
 });
 
@@ -350,8 +360,10 @@ socket.on('receive-gif', (data) => {
     return;
   }
   
-  const isOwn = data.userId && typeof data.userId === 'object' ? data.userId._id === currentUser.id : data.userId === currentUser.id;
-  console.log('Is own GIF:', isOwn, 'Data userId:', data.userId, 'Current user id:', currentUser.id);
+  // Handle both string and object userId formats
+  const dataUserId = data.userId && typeof data.userId === 'object' ? data.userId._id : data.userId;
+  const isOwn = dataUserId === currentUser.id;
+  console.log('Is own GIF:', isOwn, 'Data userId:', dataUserId, 'Current user id:', currentUser.id);
   
   const gifElement = document.createElement('img');
   gifElement.src = data.gifUrl;
