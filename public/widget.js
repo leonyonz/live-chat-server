@@ -203,9 +203,12 @@ function loadExistingMessages() {
             messageElement.appendChild(gifElement);
             
             chatMessages.appendChild(messageElement);
+            
+            // Add message ID to the set of displayed messages
+            displayedMessageIds.add(msg._id);
           } else {
             // Handle text messages
-            addMessageToChat(msg.username, msg.content, isOwn);
+            addMessageToChat(msg.username, msg.content, isOwn, msg._id);
           }
         });
         
@@ -220,6 +223,9 @@ function loadExistingMessages() {
 
 // Store the ID of the last received message to avoid duplicates
 let lastMessageId = null;
+
+// Store message IDs that have already been displayed to prevent duplicates
+const displayedMessageIds = new Set();
 
 // Periodically check for new messages to handle cross-device sync
 function startMessageSync() {
@@ -255,6 +261,11 @@ function startMessageSync() {
                 lastMessageId = msg._id;
               }
               
+              // Skip if message has already been displayed
+              if (displayedMessageIds.has(msg._id)) {
+                return;
+              }
+              
               // Handle both string and object userId formats
               const msgUserId = msg.userId && msg.userId._id ? msg.userId._id : msg.userId;
               const isOwn = msgUserId === currentUser?.id;
@@ -279,9 +290,12 @@ function startMessageSync() {
                 messageElement.appendChild(gifElement);
                 
                 chatMessages.appendChild(messageElement);
+                
+                // Add message ID to the set of displayed messages
+                displayedMessageIds.add(msg._id);
               } else {
                 // Handle text messages
-                addMessageToChat(msg.username, msg.content, isOwn);
+                addMessageToChat(msg.username, msg.content, isOwn, msg._id);
               }
             });
             
@@ -312,7 +326,17 @@ function sendMessage() {
   }
 }
 
-function addMessageToChat(username, message, isOwn = false) {
+function addMessageToChat(username, message, isOwn = false, messageId = null) {
+  // Prevent duplicate messages
+  if (messageId && displayedMessageIds.has(messageId)) {
+    return;
+  }
+  
+  // Add message ID to the set of displayed messages
+  if (messageId) {
+    displayedMessageIds.add(messageId);
+  }
+  
   const messageElement = document.createElement('div');
   messageElement.classList.add('message');
   messageElement.classList.add(isOwn ? 'own' : 'other');
@@ -345,7 +369,7 @@ socket.on('receive-message', (data) => {
   // Check if currentUser is set
   if (!currentUser) {
     console.log('Warning: currentUser is not set yet');
-    addMessageToChat(data.userName, data.message, false);
+    addMessageToChat(data.userName, data.message, false, data._id);
     return;
   }
   
@@ -353,7 +377,7 @@ socket.on('receive-message', (data) => {
   const dataUserId = data.userId && typeof data.userId === 'object' ? data.userId._id : data.userId;
   const isOwn = dataUserId === currentUser.id;
   console.log('Is own message:', isOwn, 'Data userId:', dataUserId, 'Current user id:', currentUser.id);
-  addMessageToChat(data.userName, data.message, isOwn);
+  addMessageToChat(data.userName, data.message, isOwn, data._id);
 });
 
 socket.on('receive-gif', (data) => {
@@ -380,6 +404,11 @@ socket.on('receive-gif', (data) => {
     messageElement.appendChild(gifElement);
     
     chatMessages.appendChild(messageElement);
+    
+    // Add message ID to the set of displayed messages
+    if (data._id) {
+      displayedMessageIds.add(data._id);
+    }
     
     // Scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -408,6 +437,11 @@ socket.on('receive-gif', (data) => {
   messageElement.appendChild(gifElement);
   
   chatMessages.appendChild(messageElement);
+  
+  // Add message ID to the set of displayed messages
+  if (data._id) {
+    displayedMessageIds.add(data._id);
+  }
   
   // Scroll to bottom
   chatMessages.scrollTop = chatMessages.scrollHeight;
