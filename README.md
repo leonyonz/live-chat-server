@@ -22,6 +22,65 @@ A Chatango-like live chat application with the following features:
 - React frontend
 - MongoDB for data persistence
 
+## Running Modes
+
+### Development Mode
+Development mode is designed for active development with features like auto-reload when code changes:
+
+**Using Docker (Recommended):**
+```bash
+# Start services with hot-reloading
+docker-compose up --build
+
+# To rebuild and restart after code changes
+docker-compose up --build --force-recreate
+```
+
+**Manual Setup:**
+```bash
+# Install dependencies
+npm install
+
+# Run with nodemon for auto-reload on code changes
+npm run dev
+
+# Or run normally
+npm start
+```
+
+In development mode:
+- Debug logging is enabled
+- Hot-reloading is available
+- Detailed error messages are shown
+- MongoDB is accessible on the default port (when not using Docker)
+
+### Production Mode
+Production mode is optimized for performance and security:
+
+**Using Docker (Recommended):**
+```bash
+# Build and start in production mode
+docker-compose -f docker-compose.yml up --build -d
+```
+
+**Manual Setup:**
+```bash
+# Install dependencies
+npm install
+
+# Set environment variables
+export NODE_ENV=production
+
+# Run the application
+npm start
+```
+
+In production mode:
+- Logging is minimized
+- Performance optimizations are enabled
+- Error messages are generic to prevent information leakage
+- MongoDB is not exposed to external connections (security enhancement)
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your system:
