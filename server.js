@@ -109,6 +109,8 @@ io.on('connection', (socket) => {
     const { roomName, message, userName, userId } = data;
     console.log(`Received message from ${userName} (${userId}) in room ${roomName}: ${message}`);
     
+    let savedMessageId = null;
+    
     // Save message to database
     try {
       // Get room ID
@@ -123,6 +125,7 @@ io.on('connection', (socket) => {
         
         const savedMessage = await messageService.createMessage(messageData);
         console.log('Message saved to database:', savedMessage._id);
+        savedMessageId = savedMessage._id;
       }
     } catch (error) {
       console.error('Error saving message to database:', error);
@@ -136,6 +139,7 @@ io.on('connection', (socket) => {
       message,
       userName,
       userId,
+      _id: savedMessageId,
       timestamp: new Date()
     });
     console.log(`Message broadcast complete for room: ${roomName}`);
@@ -145,6 +149,8 @@ io.on('connection', (socket) => {
   socket.on('send-gif', async (data) => {
     const { roomName, gifUrl, userName, userId } = data;
     console.log(`Received GIF from ${userName} (${userId}) in room ${roomName}: ${gifUrl}`);
+    
+    let savedMessageId = null;
     
     // Save GIF message to database
     try {
@@ -162,6 +168,7 @@ io.on('connection', (socket) => {
         
         const savedMessage = await messageService.createMessage(messageData);
         console.log('GIF message saved to database:', savedMessage._id);
+        savedMessageId = savedMessage._id;
       }
     } catch (error) {
       console.error('Error saving GIF message to database:', error);
@@ -175,6 +182,7 @@ io.on('connection', (socket) => {
       gifUrl,
       userName,
       userId,
+      _id: savedMessageId,
       timestamp: new Date()
     });
     console.log(`GIF broadcast complete for room: ${roomName}`);

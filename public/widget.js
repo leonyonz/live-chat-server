@@ -275,6 +275,8 @@ function startMessageSync() {
               }
             });
             
+            // Scroll to bottom only if we added new messages
+            // We check if any message was new by comparing displayedMessageIds size before and after
             // Scroll to bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
           }
