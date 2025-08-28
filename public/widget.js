@@ -221,29 +221,15 @@ function loadExistingMessages() {
     });
 }
 
-// Store the ID of the last received message to avoid duplicates
-let lastMessageId = null;
-
 // Store message IDs that have already been displayed to prevent duplicates
 const displayedMessageIds = new Set();
 
 // Periodically check for new messages to handle cross-device sync
 function startMessageSync() {
-  // Initialize lastMessageId if needed
-  if (typeof lastMessageId === 'undefined') {
-    lastMessageId = null;
-  }
-  
   setInterval(() => {
     if (currentRoom && currentUser) {
-      // Build query parameters
-      let url = `/api/messages/room/general`;
-      if (lastMessageId) {
-        // Only fetch messages newer than the last received message
-        url += `?since=${lastMessageId}`;
-      }
-      
-      fetch(url)
+      // Fetch all messages for the room
+      fetch(`/api/messages/room/general`)
         .then(response => response.json())
         .then(data => {
           if (data.success && data.data.length > 0) {
@@ -251,16 +237,6 @@ function startMessageSync() {
             const messages = data.data.reverse();
             
             messages.forEach(msg => {
-              // Skip if we've already processed this message
-              if (lastMessageId && msg._id <= lastMessageId) {
-                return;
-              }
-              
-              // Update lastMessageId to the newest message we've seen
-              if (!lastMessageId || msg._id > lastMessageId) {
-                lastMessageId = msg._id;
-              }
-              
               // Skip if message has already been displayed
               if (displayedMessageIds.has(msg._id)) {
                 return;
