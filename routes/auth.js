@@ -14,63 +14,6 @@ const generateToken = (user) => {
   );
 };
 
-// Create admin user (for development/testing only)
-router.post('/admin/create', async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-    
-    // Validate input
-    if (!username || !email || !password) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Username, email, and password are required' 
-      });
-    }
-    
-    // Check if admin user already exists
-    let user = await User.findOne({ email });
-    
-    if (user) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'User with this email already exists' 
-      });
-    }
-    
-    // Create new admin user
-    user = new User({
-      username: username.trim(),
-      email: email.trim(),
-      password: password,
-      provider: 'local',
-      role: 'admin'
-    });
-    
-    await user.save();
-    
-    // Generate token
-    const token = generateToken(user);
-    
-    res.json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        provider: user.provider,
-        role: user.role
-      }
-    });
-  } catch (error) {
-    console.error('Admin user creation error:', error);
-    res.status(500).json({ 
-      success: false,
-      message: 'Server error during admin user creation' 
-    });
-  }
-});
-
 // Guest login
 router.post('/guest', async (req, res) => {
   try {
