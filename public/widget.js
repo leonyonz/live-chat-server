@@ -1,6 +1,12 @@
 // Socket.IO connection
 console.log('Attempting to connect to Socket.IO server');
-const socket = io();
+const socket = io({
+  transports: ['websocket', 'polling'],
+  upgrade: true,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000
+});
 console.log('Socket object created:', socket);
 
 // Add connection event listeners
