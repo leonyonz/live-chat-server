@@ -1,4 +1,37 @@
 // Admin Dashboard JavaScript
+// Add debug utility if not already present
+if (typeof LiveChatDebug === 'undefined') {
+  // Get debug setting from URL parameter or default to true
+  const urlParams = new URLSearchParams(window.location.search);
+  const debugParam = urlParams.get('debug');
+  const DEBUG_ENABLED = debugParam !== null ? debugParam === 'true' : true;
+
+  /**
+   * Debug logger that respects the DEBUG_ENABLED setting
+   */
+  function debugLog(...args) {
+    if (DEBUG_ENABLED) {
+      console.log('[LiveChat Admin Debug]', ...args);
+    }
+  }
+
+  /**
+   * Debug error logger that respects the DEBUG_ENABLED setting
+   */
+  function debugError(...args) {
+    if (DEBUG_ENABLED) {
+      console.error('[LiveChat Admin Debug]', ...args);
+    }
+  }
+
+  // Export functions for use in other modules
+  window.LiveChatDebug = {
+    log: debugLog,
+    error: debugError,
+    isEnabled: DEBUG_ENABLED
+  };
+}
+
 class AdminDashboard {
     constructor() {
         this.token = localStorage.getItem('adminToken');
@@ -192,7 +225,7 @@ class AdminDashboard {
                 throw new Error(data.message);
             }
         } catch (error) {
-            console.error('Error loading dashboard data:', error);
+            LiveChatDebug.error('Error loading dashboard data:', error);
             this.showMessage('Failed to load dashboard data', 'error');
         }
     }
@@ -249,7 +282,7 @@ class AdminDashboard {
                 throw new Error(data.message);
             }
         } catch (error) {
-            console.error('Error loading users:', error);
+            LiveChatDebug.error('Error loading users:', error);
             this.showMessage('Failed to load users', 'error');
         }
     }
@@ -291,7 +324,7 @@ class AdminDashboard {
                 throw new Error(data.message);
             }
         } catch (error) {
-            console.error('Error loading rooms:', error);
+            LiveChatDebug.error('Error loading rooms:', error);
             this.showMessage('Failed to load rooms', 'error');
         }
     }
@@ -332,7 +365,7 @@ class AdminDashboard {
                 throw new Error(data.message);
             }
         } catch (error) {
-            console.error('Error loading messages:', error);
+            LiveChatDebug.error('Error loading messages:', error);
             this.showMessage('Failed to load messages', 'error');
         }
     }
@@ -401,7 +434,7 @@ class AdminDashboard {
                 throw new Error(data.message);
             }
         } catch (error) {
-            console.error('Error updating user role:', error);
+            LiveChatDebug.error('Error updating user role:', error);
             this.showMessage('Failed to update user role', 'error');
         }
     }
@@ -473,7 +506,7 @@ class AdminDashboard {
                 throw new Error(data.message);
             }
         } catch (error) {
-            console.error('Error executing action:', error);
+            LiveChatDebug.error('Error executing action:', error);
             this.showMessage('Failed to execute action', 'error');
         }
     }

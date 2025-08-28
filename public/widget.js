@@ -1,5 +1,5 @@
 // Socket.IO connection
-console.log('Attempting to connect to Socket.IO server');
+LiveChatDebug.log('Attempting to connect to Socket.IO server');
 const socket = io({
   transports: ['websocket', 'polling'],
   upgrade: true,
@@ -7,19 +7,19 @@ const socket = io({
   reconnectionAttempts: 5,
   reconnectionDelay: 1000
 });
-console.log('Socket object created:', socket);
+LiveChatDebug.log('Socket object created:', socket);
 
 // Add connection event listeners
 socket.on('connect', () => {
-  console.log('Socket connected successfully, socket ID:', socket.id);
+  LiveChatDebug.log('Socket connected successfully, socket ID:', socket.id);
 });
 
 socket.on('connect_error', (error) => {
-  console.error('Socket connection error:', error);
+  LiveChatDebug.error('Socket connection error:', error);
 });
 
 socket.on('disconnect', (reason) => {
-  console.log('Socket disconnected, reason:', reason);
+  LiveChatDebug.log('Socket disconnected, reason:', reason);
 });
 
 // DOM Elements
@@ -164,7 +164,7 @@ function loginAsGuest(username) {
     }
   })
   .catch(error => {
-    console.error('Error:', error);
+    LiveChatDebug.error('Error:', error);
     alert('Login failed. Please try again.');
   });
 }
@@ -217,7 +217,7 @@ function loadExistingMessages() {
       }
     })
     .catch(error => {
-      console.error('Error loading messages:', error);
+      LiveChatDebug.error('Error loading messages:', error);
     });
 }
 
@@ -282,14 +282,14 @@ function startMessageSync() {
           }
         })
         .catch(error => {
-          console.error('Error syncing messages:', error);
+          LiveChatDebug.error('Error syncing messages:', error);
         });
     }
   }, 3000); // Check every 3 seconds
 }
 
 function sendMessage() {
-  console.log('Sending message:', messageInput.value);
+  LiveChatDebug.log('Sending message:', messageInput.value);
   const message = messageInput.value.trim();
   if (message && currentUser) {
     // Emit message to server
@@ -306,19 +306,19 @@ function sendMessage() {
 }
 
 function addMessageToChat(username, message, isOwn = false, messageId = null) {
-  console.log('Adding message to chat:', { username, message, isOwn, messageId });
-  console.log('Displayed message IDs:', Array.from(displayedMessageIds));
+  LiveChatDebug.log('Adding message to chat:', { username, message, isOwn, messageId });
+  LiveChatDebug.log('Displayed message IDs:', Array.from(displayedMessageIds));
   
   // Prevent duplicate messages
   if (messageId && displayedMessageIds.has(messageId)) {
-    console.log('Message already displayed, skipping:', messageId);
+    LiveChatDebug.log('Message already displayed, skipping:', messageId);
     return;
   }
   
   // Add message ID to the set of displayed messages
   if (messageId) {
     displayedMessageIds.add(messageId);
-    console.log('Added message ID to displayed set:', messageId);
+    LiveChatDebug.log('Added message ID to displayed set:', messageId);
   }
   
   const messageElement = document.createElement('div');
@@ -347,12 +347,12 @@ socket.on('user-joined', (username) => {
 });
 
 socket.on('receive-message', (data) => {
-  console.log('Received message data:', data);
-  console.log('Current user:', currentUser);
+  LiveChatDebug.log('Received message data:', data);
+  LiveChatDebug.log('Current user:', currentUser);
   
   // Check if currentUser is set
   if (!currentUser) {
-    console.log('Warning: currentUser is not set yet');
+    LiveChatDebug.log('Warning: currentUser is not set yet');
     addMessageToChat(data.userName, data.message, false, data._id);
     return;
   }
@@ -360,17 +360,17 @@ socket.on('receive-message', (data) => {
   // Handle both string and object userId formats
   const dataUserId = data.userId && typeof data.userId === 'object' ? data.userId._id : data.userId;
   const isOwn = dataUserId === currentUser.id;
-  console.log('Is own message:', isOwn, 'Data userId:', dataUserId, 'Current user id:', currentUser.id);
+  LiveChatDebug.log('Is own message:', isOwn, 'Data userId:', dataUserId, 'Current user id:', currentUser.id);
   addMessageToChat(data.userName, data.message, isOwn, data._id);
 });
 
 socket.on('receive-gif', (data) => {
-  console.log('Received GIF data:', data);
-  console.log('Current user:', currentUser);
+  LiveChatDebug.log('Received GIF data:', data);
+  LiveChatDebug.log('Current user:', currentUser);
   
   // Check if currentUser is set
   if (!currentUser) {
-    console.log('Warning: currentUser is not set yet');
+    LiveChatDebug.log('Warning: currentUser is not set yet');
     const gifElement = document.createElement('img');
     gifElement.src = data.gifUrl;
     gifElement.style.maxWidth = '200px';
@@ -402,7 +402,7 @@ socket.on('receive-gif', (data) => {
   // Handle both string and object userId formats
   const dataUserId = data.userId && typeof data.userId === 'object' ? data.userId._id : data.userId;
   const isOwn = dataUserId === currentUser.id;
-  console.log('Is own GIF:', isOwn, 'Data userId:', dataUserId, 'Current user id:', currentUser.id);
+  LiveChatDebug.log('Is own GIF:', isOwn, 'Data userId:', dataUserId, 'Current user id:', currentUser.id);
   
   const gifElement = document.createElement('img');
   gifElement.src = data.gifUrl;
@@ -441,7 +441,7 @@ function loadTrendingGifs() {
       }
     })
     .catch(error => {
-      console.error('Error loading trending GIFs:', error);
+      LiveChatDebug.error('Error loading trending GIFs:', error);
     });
 }
 
@@ -454,7 +454,7 @@ function searchGifs(query) {
       }
     })
     .catch(error => {
-      console.error('Error searching GIFs:', error);
+      LiveChatDebug.error('Error searching GIFs:', error);
     });
 }
 

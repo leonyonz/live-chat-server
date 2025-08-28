@@ -298,3 +298,66 @@ The application includes a comprehensive admin dashboard for managing the chat s
 - All admin actions require JWT authentication
 - MongoDB is not exposed externally, only accessible within the Docker network
 - Passwords are securely hashed using bcrypt
+
+## Debugging
+
+This application includes a comprehensive debugging system that allows you to control the verbosity of logs in both client-side and server-side components.
+
+### How It Works
+
+The debugging system is controlled by the `DEBUG_ENABLED` environment variable in the `.env` file. When set to `true`, debug messages will be logged to the console. When set to `false`, debug messages will be suppressed.
+
+### Configuration
+
+#### Server-Side Debugging
+
+The server-side debugging is controlled by the `DEBUG_ENABLED` variable in the `.env` file:
+
+```env
+DEBUG_ENABLED=true
+```
+
+When `DEBUG_ENABLED=true`, the server will output detailed logs for:
+- Socket.io connections and disconnections
+- Room join events
+- Message sending and receiving
+- Database operations
+- Error conditions
+
+#### Client-Side Debugging
+
+Client-side debugging can be controlled in two ways:
+
+1. **Environment Variable**: The client checks the `DEBUG_ENABLED` variable from the server's `.env` file.
+2. **URL Parameter**: You can override the debugging setting by adding `?debug=true` or `?debug=false` to the URL.
+
+For example:
+- `http://localhost:3000/?debug=true` - Enables debugging
+- `http://localhost:3000/?debug=false` - Disables debugging (even if `DEBUG_ENABLED=true` in .env)
+
+### Usage
+
+#### Enabling Debug Mode
+
+1. Set `DEBUG_ENABLED=true` in your `.env` file
+2. Restart the server
+3. Open the application in your browser
+4. Open the browser's developer console to view the logs
+
+#### Disabling Debug Mode
+
+1. Set `DEBUG_ENABLED=false` in your `.env` file
+2. Restart the server
+3. The console logs will be suppressed
+
+Alternatively, you can temporarily disable debugging for a specific session by adding `?debug=false` to the URL.
+
+### Debug Output Format
+
+Debug messages are prefixed to distinguish them from other console output:
+
+- **Client-side**: `[LiveChat Debug]`
+- **Admin panel**: `[LiveChat Admin Debug]`
+- **Server-side**: `[Server Debug]`
+
+For more detailed information about the debugging system, see [DEBUGGING.md](DEBUGGING.md).

@@ -12,6 +12,21 @@ const adminRoutes = require('./routes/admin');
 const path = require('path');
 require('dotenv').config();
 
+// Debug utility
+const DEBUG_ENABLED = process.env.DEBUG_ENABLED === 'true';
+
+function debugLog(...args) {
+  if (DEBUG_ENABLED) {
+    console.log('[Server Debug]', ...args);
+  }
+}
+
+function debugError(...args) {
+  if (DEBUG_ENABLED) {
+    console.error('[Server Debug]', ...args);
+  }
+}
+
 // Connect to MongoDB
 connectDB();
 
@@ -71,11 +86,11 @@ const userConnections = new Map(); // Maps userId to array of socket IDs
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  debugLog('User connected:', socket.id);
 
   // Join a chat room
   socket.on('join-room', async (roomName, userName, userId) => {
-    console.log(`User ${userName} (${userId}) joining room: ${roomName}`);
+    debugLog(`User ${userName} (${userId}) joining room: ${roomName}`);
     socket.join(roomName);
     // Notify others in the room that a user has joined
     socket.to(roomName).emit('user-joined', userName);
@@ -94,29 +109,29 @@ io.on('connection', (socket) => {
         // Create room if it doesn't exist
         room = new Room({ name: roomName, createdBy: userId, members: [userId] });
         await room.save();
-        console.log(`Created new room: ${roomName} with ID: ${room._id}`);
+        debugLog(`Created new room: ${roomName} with ID: ${room._id}`);
       } else {
         // Add user to room members if not already a member
         if (!room.members.includes(userId)) {
           room.members.push(userId);
           await room.save();
-          console.log(`Added user ${userId} to existing room: ${roomName}`);
+          debugLog(`Added user ${userId} to existing room: ${roomName}`);
         } else {
-          console.log(`User ${userId} is already a member of room: ${roomName}`);
+          debugLog(`User ${userId} is already a member of room: ${roomName}`);
         }
       }
       // Store room ID in socket for later use
       socket.roomId = room._id;
-      console.log(`Socket ${socket.id} joined room ${roomName} with ID: ${room._id}`);
+      debugLog(`Socket ${socket.id} joined room ${roomName} with ID: ${room._id}`);
     } catch (error) {
-      console.error('Error getting/creating room:', error);
+      debugError('Error getting/creating room:', error);
     }
   });
 
   // Handle incoming messages
   socket.on('send-message', async (data) => {
     const { roomName, message, userName, userId } = data;
-    console.log(`Received message from ${userName} (${userId}) in room ${roomName}: ${message}`);
+    debugLog(`Received message from ${userName} (${userId}) in room ${roomName}: ${message}`);
     
     let savedMessageId = null;
     
@@ -133,17 +148,17 @@ io.on('connection', (socket) => {
         };
         
         const savedMessage = await messageService.createMessage(messageData);
-        console.log('Message saved to database:', savedMessage._id);
+        debugLog('Message saved to database:', savedMessage._id);
         savedMessageId = savedMessage._id;
       }
     } catch (error) {
-      console.error('Error saving message to database:', error);
+      debugError('Error saving message to database:', error);
     }
     
     // Broadcast message to everyone in the room
-    console.log(`Broadcasting message to room: ${roomName}`);
+    debugLog(`Broadcasting message to room: ${roomName}`);
     const roomSockets = Array.from(io.sockets.adapter.rooms.get(roomName) || []);
-    console.log(`Sockets in room ${roomName}:`, roomSockets);
+    debugLog(`Sockets in room ${roomName}:`, roomSockets);
     io.to(roomName).emit('receive-message', {
       message,
       userName,
@@ -151,13 +166,13 @@ io.on('connection', (socket) => {
       _id: savedMessageId,
       timestamp: new Date()
     });
-    console.log(`Message broadcast complete for room: ${roomName}`);
+    debugLog(`Message broadcast complete for room: ${roomName}`);
   });
 
   // Handle GIF messages
   socket.on('send-gif', async (data) => {
     const { roomName, gifUrl, userName, userId } = data;
-    console.log(`Received GIF from ${userName} (${userId}) in room ${roomName}: ${gifUrl}`);
+    debugLog(`Received GIF from ${userName} (${userId}) in room ${roomName}: ${gifUrl}`);
     
     let savedMessageId = null;
     
@@ -176,17 +191,17 @@ io.on('connection', (socket) => {
         };
         
         const savedMessage = await messageService.createMessage(messageData);
-        console.log('GIF message saved to database:', savedMessage._id);
+        debugLog('GIF message saved to database:', savedMessage._id);
         savedMessageId = savedMessage._id;
       }
     } catch (error) {
-      console.error('Error saving GIF message to database:', error);
+      debugError('Error saving GIF message to database:', error);
     }
     
     // Broadcast GIF to everyone in the room
-    console.log(`Broadcasting GIF to room: ${roomName}`);
+    debugLog(`Broadcasting GIF to room: ${roomName}`);
     const roomSockets = Array.from(io.sockets.adapter.rooms.get(roomName) || []);
-    console.log(`Sockets in room ${roomName}:`, roomSockets);
+    debugLog(`Sockets in room ${roomName}:`, roomSockets);
     io.to(roomName).emit('receive-gif', {
       gifUrl,
       userName,
@@ -194,12 +209,12 @@ io.on('connection', (socket) => {
       _id: savedMessageId,
       timestamp: new Date()
     });
-    console.log(`GIF broadcast complete for room: ${roomName}`);
+    debugLog(`GIF broadcast complete for room: ${roomName}`);
   });
 
   // Handle user disconnect
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    debugLog('User disconnected:', socket.id);
     
     // Clean up user connections tracking
     if (socket.userId) {
@@ -230,5 +245,5 @@ function emitToUser(userId, event, data) {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  debugLog(`Server is running on port ${PORT}`);
 });

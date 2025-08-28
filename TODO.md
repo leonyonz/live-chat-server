@@ -73,3 +73,7 @@
 
 ## Known Issues
 - [x] Cross-device message synchronization - Messages sent from one device are not visible on other devices
+
+## Additional Features
+- [x] Implement debug logging system with enable/disable functionality
+- [ ] Add more advanced debugging features (to be implemented)
