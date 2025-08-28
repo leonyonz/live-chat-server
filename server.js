@@ -66,6 +66,7 @@ io.on('connection', (socket) => {
 
   // Join a chat room
   socket.on('join-room', async (roomName, userName, userId) => {
+    console.log(`User ${userName} (${userId}) joining room: ${roomName}`);
     socket.join(roomName);
     // Notify others in the room that a user has joined
     socket.to(roomName).emit('user-joined', userName);
@@ -84,15 +85,20 @@ io.on('connection', (socket) => {
         // Create room if it doesn't exist
         room = new Room({ name: roomName, createdBy: userId, members: [userId] });
         await room.save();
+        console.log(`Created new room: ${roomName} with ID: ${room._id}`);
       } else {
         // Add user to room members if not already a member
         if (!room.members.includes(userId)) {
           room.members.push(userId);
           await room.save();
+          console.log(`Added user ${userId} to existing room: ${roomName}`);
+        } else {
+          console.log(`User ${userId} is already a member of room: ${roomName}`);
         }
       }
       // Store room ID in socket for later use
       socket.roomId = room._id;
+      console.log(`Socket ${socket.id} joined room ${roomName} with ID: ${room._id}`);
     } catch (error) {
       console.error('Error getting/creating room:', error);
     }
@@ -101,6 +107,7 @@ io.on('connection', (socket) => {
   // Handle incoming messages
   socket.on('send-message', async (data) => {
     const { roomName, message, userName, userId } = data;
+    console.log(`Received message from ${userName} (${userId}) in room ${roomName}: ${message}`);
     
     // Save message to database
     try {
@@ -122,17 +129,22 @@ io.on('connection', (socket) => {
     }
     
     // Broadcast message to everyone in the room
+    console.log(`Broadcasting message to room: ${roomName}`);
+    const roomSockets = Array.from(io.sockets.adapter.rooms.get(roomName) || []);
+    console.log(`Sockets in room ${roomName}:`, roomSockets);
     io.to(roomName).emit('receive-message', {
       message,
       userName,
       userId,
       timestamp: new Date()
     });
+    console.log(`Message broadcast complete for room: ${roomName}`);
   });
 
   // Handle GIF messages
   socket.on('send-gif', async (data) => {
     const { roomName, gifUrl, userName, userId } = data;
+    console.log(`Received GIF from ${userName} (${userId}) in room ${roomName}: ${gifUrl}`);
     
     // Save GIF message to database
     try {
@@ -156,12 +168,16 @@ io.on('connection', (socket) => {
     }
     
     // Broadcast GIF to everyone in the room
+    console.log(`Broadcasting GIF to room: ${roomName}`);
+    const roomSockets = Array.from(io.sockets.adapter.rooms.get(roomName) || []);
+    console.log(`Sockets in room ${roomName}:`, roomSockets);
     io.to(roomName).emit('receive-gif', {
       gifUrl,
       userName,
       userId,
       timestamp: new Date()
     });
+    console.log(`GIF broadcast complete for room: ${roomName}`);
   });
 
   // Handle user disconnect
